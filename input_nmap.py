@@ -1,5 +1,5 @@
 import nmap
-from optparse import OptionParser
+import argparse
 import colors
 
 
@@ -32,6 +32,19 @@ def base_scan(target_h, target_p):
 
 
 def main():
+
+    parser = argparse.ArgumentParser(description='Nmap network scanner')
+
+    parser.add_argument('-H', action = 'store', dest = 'host', required=True)
+    parser.add_argument('-p', action = 'store', type =int, dest = 'port', required=True)
+
+    found_args = parser.parse_args()
+    # print(found_args.host)
+    target_h  = found_args.host
+    target_p_new = str(found_args.port)
+    '''    
+    re writing cuz optarse is old...
+
     # the general cookie cutter for optparser, make a script guide, make options, and assign vars
     my_parse = OptionParser('Script Guide:'+'-H <target host> -p <target port>')
 
@@ -44,6 +57,7 @@ def main():
     target_h = options.target_h
     # make it easier to parse as a string
     target_p_str = str(options.target_p)
+    '''
 
 
     print('\n:::::::::scan starting on ' + target_h + ':::::::::')
@@ -51,15 +65,15 @@ def main():
 
 
     # if either option is empty, print the script guide and exit
-    if (target_h == None) or (target_p_str[0] == None):
-        print(my_parse.usage)
+    if (target_h == None) or (target_p_new[0] == None):
+        print(parser.usage)
         # somethigns a bit wacky: doesnt quit if ports arent there, only if host is missing
         print('Err... somethings missing')
         exit(0)
 
     
 
-    ports = target_p_str.strip("'").split(',')
+    ports = target_p_new.strip("'").split(',')
 
     # loop through all available ports and call the scan for the individual ports
     for target_port in ports:
@@ -72,3 +86,6 @@ def main():
 if __name__ == '__main__':
     main()
 
+# argparse limitts the amount of input to 1 port
+
+# options parse gives ability to search many ports in a string
