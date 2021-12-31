@@ -1,3 +1,7 @@
+#!usr/bin/env python
+
+# a little simple network scanner ... in progress
+
 import nmap
 import argparse
 import colors
@@ -15,7 +19,7 @@ def base_scan(target_h, target_p):
     
 
     # itital state that if not changed by function below, indicates an error w/ the state
-    print_state = 'State ERR'
+    print_state = '***state ERROR'
 
 
     # adding in color to the command line interface
