@@ -1,4 +1,4 @@
-#!usr/bin/env python
+#! usr/bin/env python
 
 # a little simple network scanner ... in progress
 
@@ -32,7 +32,7 @@ def base_scan(target_h, target_p):
 
     print('------->' + ' tcp/'+ target_p+ ' '+ print_state )
 
-
+    
 
 
 def main():
