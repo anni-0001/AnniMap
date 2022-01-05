@@ -13,14 +13,17 @@ initial goals:
     verifies that the ip address is valid ipv4 address input ✔
     verify that the ports are valid inputs ✔
     prints hostname, ip address and state of host ✔
+
+    next step:
+    give the user options of types of scans instead of putting in args via cmd
     ability to do a wide range of scans & process multiple arugments/flags - halfway
-    looks cute with colors and unique interface
-    has cute pixel art in the beginning
 
 
 down the road:
     make it a bash script
     has banner grabbing & more indepth information
+    looks cute with colors and unique interface
+    has cute pixel art in the beginning
     learn how to make animated terminal art for beginning
 '''
 
@@ -67,15 +70,15 @@ def scanner(ip_address, port_values, scan_args):
     open_ports = 0
     total_ports = 0
     # loops through all the given range of ports
-    for port in range(1, 1024):
+    for port in range(int(port_begin), int(port_end )-1):
         total_ports += 1
 
         # allows for a UDP or TCP protocols to find state of port
         for protocol in nm[ip_address].all_protocols():
             # print(protocol)
 
-            indv_port_state = nm[ip_address][protocol][port]['state']
-            indv_port_name = nm[ip_address][protocol][port]['name']
+            indv_port_state = nm[ip_address]['tcp'][int(port)]['state']
+            indv_port_name = nm[ip_address]['tcp'][int(port)]['name']
             # print(f'port #{total_ports}')
             # print(indv_port_state)
 
