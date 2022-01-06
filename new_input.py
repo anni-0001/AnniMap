@@ -2,6 +2,7 @@
 
 import nmap
 import re
+import time
 
 
 '''
@@ -20,18 +21,15 @@ initial goals:
 
 
 down the road:
-    make it a bash script
+    make it a bash script/more efficient
     has banner grabbing & more indepth information
     looks cute with colors and unique interface
     has cute pixel art in the beginning
     learn how to make animated terminal art for beginning
 '''
 
-
-
 def valid_ip(targ_ip_address):
     valid_ip_re =  re.compile("^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
-
     # ensures that the ip input matches the correct pattern format
     if valid_ip_re.search(targ_ip_address):
         # print(f'{targ_ip_address} : valid address found!')
@@ -43,7 +41,6 @@ def valid_ip(targ_ip_address):
 
 def valid_port(targ_port):
     valid_port_re = re.compile("([0-9]+)-([0-9]+)")
-
     # ensures that the ip input matches the correct pattern format
     if valid_port_re.search(targ_port):
         # print(f'{targ_port} : valid port(s) found!')
@@ -53,64 +50,87 @@ def valid_port(targ_port):
         return False
 
 
-def scanner(ip_address, port_values, scan_args):
+def scanner(ip_address, port_values,scan_args):
+    timer_start = time.perf_counter()
+
     nm = nmap.PortScanner()
-    x = nm.scan(hosts=ip_address, ports=port_values, arguments=str(scan_args))
-
-    # print(x)
+    x = nm.scan(hosts=ip_address, ports=port_values, arguments=str(scan_args), timeout=15)
     port_begin, port_end = port_values.split('-')
-
 
     # prints the status of the host - up/down
     status_addr = nm[ip_address]['status']['state']
-    print(f'{nm[ip_address].hostname()} @ {ip_address} ----> {status_addr}')
+    hostname = nm[ip_address].hostname()
+    print('\n|------------------------------------------|')
+    print(f'|  {hostname} @ {ip_address} ----> {status_addr}        |')
+    print('|-----------------------------------------|')
+
     print()
 
 
     open_ports = 0
     total_ports = 0
-    # loops through all the given range of ports
-    for port in range(int(port_begin), int(port_end )-1):
-        total_ports += 1
 
-        # allows for a UDP or TCP protocols to find state of port
-        for protocol in nm[ip_address].all_protocols():
-            # print(protocol)
+    print('\n----------------Port scan----------------\n')
 
-            indv_port_state = nm[ip_address]['tcp'][int(port)]['state']
-            indv_port_name = nm[ip_address]['tcp'][int(port)]['name']
-            # print(f'port #{total_ports}')
-            # print(indv_port_state)
+    # loops through all the found tcp ports
+    for a_port in nm[ip_address].all_tcp():
+        total_ports +=1
+
+        state = nm[ip_address]['tcp'][a_port]['state']
+        name = nm[ip_address]['tcp'][a_port]['name']
+        reason = nm[ip_address]['tcp'][a_port]['reason']
+        if state == 'open':
+            open_ports +=1
+            print(f'Port {a_port} : open')
+            print(f'    --> service : {name}')
+            print(f'    --> reason : {reason}')
+            print(f'    --> protocol : tcp')
+            print()
+    # loops through all found udp ports
+    for a_port in nm[ip_address].all_udp():
+        total_ports +=1
+
+        state = nm[ip_address]['udp'][a_port]['state']
+        name = nm[ip_address]['udp'][a_port]['name']
+        reason = nm[ip_address]['udp'][a_port]['reason']
+        if state == 'open':
+            open_ports +=1
+            print(f'Port {a_port} : open')
+            print(f'    --> service : {name}')
+            print(f'    --> reason : {reason}')
+            print('     --> protocol : udp')
+            print()
+    
+    # if the user put in -O option
+    try: 
+        if x['scan'][ip_address]['osmatch']:
+            # print(x['scan'][ip_address]['osmatch'])
+
+            operating_sys = x['scan'][ip_address]['osmatch'][0]['name']
+            accuracy = x['scan'][ip_address]['osmatch'][0]['accuracy']
+
+            # print('True')
+            print('\n+++ OS: DETECTED')
+            print(f'    --> OS & version: {operating_sys}')
+            print(f'    --> Accuracy : {accuracy} %\n')
+
+            
 
 
+            print('')
+    except KeyError:
+        print('-- OS: NOT DETECTED')
 
-            if indv_port_state == 'open':
-                open_ports +=1
-                print(f'Port {port} : open')
-                print(f'    --> service : {indv_port_name}')
-            else:
-                continue
-                # print(indv_port_name, ' is down')
-        
-
-    # # OS detection
-    # if 'osclass' in nm[ip_address]:
-    #     print('OS detected')
-    #     for operating in nm[ip_address]['osclass']:
-    #         print(f'osclass.type : {operating.type}')
-    #         print(f'osclass.vendor : {operating.vendor}')
+    timer_stop = time.perf_counter()
 
 
-    # working OS detection - develop this next - have as default for all scans at bottom
-    print(x['scan'][ip_address]['osmatch'])
+    total_ports = (int(port_end)+1) - int(port_begin)
 
-    closed_ports = total_ports - open_ports 
-    print()
-    print(f'Ports closed: {closed_ports}/{total_ports}')
+    print('\n------Scan Summary------')
+    print(f'OPEN PORTS: {open_ports}/{total_ports} ports')
 
 
-
-
+    print(f'{total_ports} ports scanned in {round(timer_stop- timer_start, 3)} seconds')
 
 
 
@@ -119,8 +139,9 @@ def main():
     # port = '21'
 
     ipaddr = input('Enter ip address: ')
-    port = input('Enter port(s)/port range: ')
-    if valid_ip(ipaddr) & valid_port(port) == True:
+    port_range = input('Enter port(s)/port range: ')
+
+    if valid_ip(ipaddr) & valid_port(port_range) == True:
         print('ip address & ports: valid')
         # scanner(ipaddr, port)
 
@@ -132,7 +153,8 @@ def main():
     print()
     print(f':::::::::::::::::scan initiated on {ipaddr}::::::::::::::::')
     print()
-    scanner(ipaddr, port, args)
+    
+    scanner(ipaddr, port_range, args)
     
 
  
