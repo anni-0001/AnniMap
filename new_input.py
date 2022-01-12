@@ -60,12 +60,17 @@ def scanner(ip_address, port_values,scan_args):
     # prints the status of the host - up/down
     status_addr = nm[ip_address]['status']['state']
     hostname = nm[ip_address].hostname()
-    print('\n|------------------------------------------|')
-    print(f'|  {hostname} @ {ip_address} ----> {status_addr}        |')
-    print('|-----------------------------------------|')
+    # lastboot = x['scan'][ip_address]['uptime']['lastboot']
+    print('\n----------------Host info----------------\n')
+
+    # print('\n|------------------------------------------|')
+    print(f'  host @ {ip_address} ----> {status_addr}        ')
+    # print(f'Last system boot : {lastboot}')
+    # print('|-----------------------------------------|')
 
     print()
 
+    # print(f'Last system boot : {lastboot}')
 
     open_ports = 0
     total_ports = 0
@@ -76,16 +81,40 @@ def scanner(ip_address, port_values,scan_args):
     for a_port in nm[ip_address].all_tcp():
         total_ports +=1
 
+        
+
         state = nm[ip_address]['tcp'][a_port]['state']
-        name = nm[ip_address]['tcp'][a_port]['name']
+        service = nm[ip_address]['tcp'][a_port]['product']
         reason = nm[ip_address]['tcp'][a_port]['reason']
+
+        # this is redundant hunny - if theyre in the list then its open ... right?
         if state == 'open':
             open_ports +=1
-            print(f'Port {a_port} : open')
-            print(f'    --> service : {name}')
+            print(f'Port {a_port} : {state}')
+            print(f'    --> service : {service}')
             print(f'    --> reason : {reason}')
-            print(f'    --> protocol : tcp')
+            print('    --> protocol : tcp')
+
+            try:
+                # if the -sV option is present
+                if x['scan'][ip_address]['tcp'][a_port]['version']:
+                    version = x['scan'][ip_address]['tcp'][a_port]['version']
+                    print(f'    --> version :  {version}')
+
+            except KeyError:
+                print(f'ERR... use -sV for version detection')
+                
             print()
+        else:
+            print(f'port {total_ports} : {state}')
+            continue
+
+    '''
+    identical functions above & below - quickest sol to look at tcp & udp 
+        - implement recursions? not v code efficient - BUT runs plenty fast
+        actually - make a combined list for tcp& udp then parse the data in the same function
+    '''
+
     # loops through all found udp ports
     for a_port in nm[ip_address].all_udp():
         total_ports +=1
@@ -93,6 +122,7 @@ def scanner(ip_address, port_values,scan_args):
         state = nm[ip_address]['udp'][a_port]['state']
         name = nm[ip_address]['udp'][a_port]['name']
         reason = nm[ip_address]['udp'][a_port]['reason']
+        # print(f'port #{total_ports}: {state}')
         if state == 'open':
             open_ports +=1
             print(f'Port {a_port} : open')
@@ -100,6 +130,11 @@ def scanner(ip_address, port_values,scan_args):
             print(f'    --> reason : {reason}')
             print('     --> protocol : udp')
             print()
+
+    # print(x['scan'][ip_address])
+    # print(x['scan'])
+
+    
     
     # if the user put in -O option
     try: 
@@ -108,18 +143,30 @@ def scanner(ip_address, port_values,scan_args):
 
             operating_sys = x['scan'][ip_address]['osmatch'][0]['name']
             accuracy = x['scan'][ip_address]['osmatch'][0]['accuracy']
+            lastboot = x['scan'][ip_address]['uptime']['lastboot']
+            devtype =x['scan'][ip_address]['osmatch'][0]['osclass'][0]['type']
 
-            # print('True')
+            # devtype = x['scan'][ip_address]['osmatch']['osclass']['type']
+            # devtype = x
+
+   
             print('\n+++ OS: DETECTED')
+            print(f'Last system boot: {lastboot}')
+
+            '''with the scan values set to static comprehensive all these should work
+            no problem, but will need seperate programs for when more custom
+            input options are available'''
+
             print(f'    --> OS & version: {operating_sys}')
+            # print(f'    --> Last system boot: {lastboot}')
+            print(f'    --> Type : {devtype}')
             print(f'    --> Accuracy : {accuracy} %\n')
-
-            
-
-
-            print('')
+            # print('')
     except KeyError:
         print('-- OS: NOT DETECTED')
+
+
+
 
     timer_stop = time.perf_counter()
 
@@ -148,7 +195,9 @@ def main():
     else: 
         print('Either ip address, ports, or both are incorrect')
         return
-    args = input('Enter arguments: ')
+    args = '-sV -sX -O -'#input('Enter arguments: ')
+    # args to work on adding: -sP
+    # args = '-sP'
 
     print()
     print(f':::::::::::::::::scan initiated on {ipaddr}::::::::::::::::')
