@@ -24,8 +24,8 @@ down the road:
     make it a bash script/more efficient
     has banner grabbing & more indepth information
     looks cute with colors and unique interface
-    has cute pixel art in the beginning
-    learn how to make animated terminal art for beginning
+    has cute pixel art in the beginning ✔
+    learn how to make animated terminal art for beginningz
 '''
 
 def valid_ip(targ_ip_address):
@@ -54,7 +54,7 @@ def scanner(ip_address, port_values,scan_args):
     timer_start = time.perf_counter()
 
     nm = nmap.PortScanner()
-    x = nm.scan(hosts=ip_address, ports=port_values, arguments=str(scan_args), timeout=15)
+    x = nm.scan(hosts=ip_address, ports=port_values, arguments=str(scan_args), timeout=35)
     port_begin, port_end = port_values.split('-')
 
     # prints the status of the host - up/down
@@ -184,6 +184,19 @@ def scanner(ip_address, port_values,scan_args):
 def main():
     # ipaddr = '127.0.0.1'
     # port = '21'
+    print(r"""
+         _       ____  _____  ____  _____  _____  ____    ____       _       _______   
+        / \     |_   \|_   _||_   \|_   _||_   _||_   \  /   _|     / \     |_   __ \  
+       / _ \      |   \ | |    |   \ | |    | |    |   \/   |      / _ \      | |__) | 
+      / ___ \     | |\ \| |    | |\ \| |    | |    | |\  /| |     / ___ \     |  ___/  
+    _/ /   \ \_  _| |_\   |_  _| |_\   |_  _| |_  _| |_\/_| |_  _/ /   \ \_  _| |_     
+   |____| |____||_____|\____||_____|\____||_____||_____||_____||____| |____||_____|    
+                                                                                      
+    
+    """)
+
+    print("----data gathering----")
+    print()
 
     ipaddr = input('Enter ip address: ')
     port_range = input('Enter port(s)/port range: ')
@@ -195,7 +208,7 @@ def main():
     else: 
         print('Either ip address, ports, or both are incorrect')
         return
-    args = '-sV -sX -O -'#input('Enter arguments: ')
+    args = '-sV -sX -O'#input('Enter arguments: ')
     # args to work on adding: -sP
     # args = '-sP'
 
