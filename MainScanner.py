@@ -14,18 +14,18 @@ initial goals:
     verifies that the ip address is valid ipv4 address input ✔
     verify that the ports are valid inputs ✔
     prints hostname, ip address and state of host ✔
+        has cute pixel art in the beginning ✔
 
     next step:
     give the user options of types of scans instead of putting in args via cmd
-    ability to do a wide range of scans & process multiple arugments/flags - halfway
+    ability to do a wide range of scans & process multiple arugments/flags - halfway there
 
 
 down the road:
     make it a bash script/more efficient
     has banner grabbing & more indepth information
     looks cute with colors and unique interface
-    has cute pixel art in the beginning ✔
-    learn how to make animated terminal art for beginningz
+    learn how to make animated terminal art for beginningz 
 '''
 
 def valid_ip(targ_ip_address):
